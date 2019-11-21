@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="data-structure,tree,red-black-tree,">
+
+
+
+
+
+
+
+
+
+
+<meta name="keywords" content="data-structure,tree,red-black-tree">
+<meta property="og:type" content="article">
+<meta property="og:title" content="red-black-tree简介">
+<meta property="og:url" content="http://yoursite.com/2019/08/09/red-black-tree简介/index.html">
+<meta property="og:site_name" content="JackHuang&#39;s Blog">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_cover.jpg">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_exp.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_rotation.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_insert_case_1.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_insert_case_2.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_insert_case_3.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_1_case_1.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_1_case_2.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_1_case_3.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_1.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_2.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_3.png">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_4.png">
+<meta property="og:updated_time" content="2019-11-21T03:11:22.411Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="red-black-tree简介">
+<meta name="twitter:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_cover.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/09/red-black-tree简介/">
+
+
+
+
+
+  <title>red-black-tree简介 | JackHuang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ef71052981073e959c5e3ed921733a9e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JackHuang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/red-black-tree简介/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Huang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/imgs/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JackHuang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">red-black-tree简介</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-09T13:12:10+08:00">
+                2019-08-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/data-structure/" itemprop="url" rel="index">
+                    <span itemprop="name">data-structure</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_cover.jpg" alt="red-black-tree"></p>
+<hr>
+<a id="more"></a>
+<h2 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h2><p><strong>红黑树</strong>是一种自平衡的二叉查找树，1972年由Rudolf Bayer发明的，当时叫做平衡二叉B树，在1978年被 Leo J. Guibas 和 Robert Sedgewick 修改为如今的“红黑树”。</p>
+<p><strong>红黑树</strong> 和 <strong>AVL</strong> 树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。原理虽然很复杂，但它提供了时间上的保证，即最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(logn)时间内做查找，插入和删除，n指树中节点的数目。</p>
+<p>红黑树特殊是因为其有几条特性需要遵守，特性如下：</p>
+<ol>
+<li>节点是红色或者黑色</li>
+<li>根节点只能是黑色</li>
+<li>每个叶子节点都是黑色的空节点(值为null)</li>
+<li>每个红色节点的两个子节点都是黑色</li>
+<li>从任意节点到其每个叶子节点的所有路径都包含相同数量的黑色节点</li>
+</ol>
+<p>红黑树示例图：<br><img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_exp.png" alt="red-black-tree-exp"></p>
+<p>当插入/删除节点时，如果破坏了红黑树的规则定义，就需要进行自我调整，调整策略有两种：<strong>左旋</strong>、<strong>右旋</strong>，即“围绕某个节点的左旋”和“围绕某个节点的右旋”, 左旋、右旋的示例如下：</p>
+<p><img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_rotation.png" alt="red-black-tree-rotation"></p>
+<p>那什么时候需要进行调整呢？分操作来讲</p>
+<ol>
+<li>插入操作</li>
+</ol>
+<p>红黑树规定，插入的节点必须是红色的，而且，二叉查找树中新插入的节点都是放在叶子节点上。</p>
+<ul>
+<li>如果插入节点的父节点是黑色的，那什么都不用做，它仍然满足红黑树的定义</li>
+<li>如果插入的节点是根节点，那我们直接改变它的颜色，把它变成黑色就可以了</li>
+</ul>
+<p>除了上面两种特殊情况以外，其它所有的插入操作都会破坏红黑树的定义，如果红黑树的插入操作导致平衡被打破，会有三种情况，这里假设插入的节点是a，并把a作为关注节点：</p>
+<p><strong>case 1</strong>：如果关注节点是a，它的叔叔节点d是红色，就依次执行下面的操作：</p>
+<ul>
+<li>将关注节点a的父节点b、叔叔节点d的颜色都设置为黑色</li>
+<li>将关注节点a的祖父节点c的颜色设置为红色</li>
+<li>关注节点变成a的祖父节点c</li>
+<li>跳到 case2 或者 case3</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_insert_case_1.png" alt="red-black-tree-insert-case-1"></p>
+<p><strong>case 2</strong>：如果关注节点是a，它的叔叔节点d是黑色，关注节点a的是其父节点b的右子节点，依次执行下面的操作：</p>
+<ul>
+<li>关注节点变成a的父节点b</li>
+<li>围绕新的关注节点b左旋</li>
+<li>跳到case3</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_insert_case_2.png" alt="red-black-tree-insert-case-2"></p>
+<p><strong>case 3</strong>：如果关注节点是a，它的叔叔节点d是黑色，关注节点a的是其父节点b的左子节点，依次执行下面的操作：</p>
+<ul>
+<li>围绕关注节点a的祖父节点c右旋</li>
+<li>将关注节点a的父节点b、兄弟节点c颜色互换</li>
+<li>调整结束</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_insert_case_3.png" alt="red-black-tree-insert-case-3"></p>
+<ol start="2">
+<li>删除操作</li>
+</ol>
+<p>删除操作的平衡调整分为两步，第一步是针对删除节点初步调整，保证在一个节点删除后，仍然满足最后一条定义的要求。第二步是针对关注节点进行第二次调整，让它满足第四条定义。</p>
+<blockquote>
+<p>接下来的分析里，如果一个节点既可以是红色，也可以是黑色，在图里表现出来一半红色一半黑色的点，如果一个节点是“红-黑”或者“黑-黑”，在图里表现出来一个小黑点在左上角。</p>
+</blockquote>
+<p>2.1 先看第一步的三种情况的调整过程：</p>
+<p><strong>case 1</strong>：如果要删除的节点是a，它只有一个子节点b，就依次执行下面的操作：</p>
+<ul>
+<li>删除节点a，并且把节点b替换到节点a的位置，这一部分操作跟普通的二叉查找树的删除操作一样</li>
+<li>节点a只能是黑色，节点b也只能是红色，其它情况均不符合红黑树的定义，这种情况下，把节点b改为黑色</li>
+<li>调整结束，不需要进行第二次调整</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_1_case_1.png" alt="red-black-tree-delete-step-1-case-1"></p>
+<p><strong>case 2</strong>：如果要删除的节点a有两个非空子节点，并且它的后继结点就是节点a的右子节点c，就依次执行下面的操作：</p>
+<ul>
+<li>如果节点a的后继结点就是右子节点c，那右子节点c肯定没有左子树，把节点a删除，并且将节点c替换到节点a的位置。这一部分的操作跟普通的二叉查找树的删除操作一样</li>
+<li>然后把节点c的颜色设置为节点a的颜色</li>
+<li>如果节点c是黑色，为了不违反红黑树最后一条定义，我们给节点c的右子节点d多加一个黑色，这个时候节点d就成了“红-黑”或者“黑-黑”</li>
+<li>这个时候，关注节点变成了节点d，第二步的调整操作就会针对关注节点来做</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_1_case_2.png" alt="red-black-tree-delete-step-1-case-2"></p>
+<p><strong>case 3</strong>：如果要删除的是节点a，它有两个非空子节点，并且节点a的后继节点不是右子节点，就依次执行下面的操作：</p>
+<ul>
+<li>找到后继节点d，并将它删除，删除后继节点的过程参照case1</li>
+<li>将节点a替换成后继节点d</li>
+<li>把节点d的颜色设置为a的颜色</li>
+<li>如果节点d是黑色，为了不违反红黑树最后一条定义，我给节点d的右子节点c多加一个黑色，c变成了“红-黑”或者“黑-黑”</li>
+<li>这个时候，关注节点变成了节点c，第二步的调整操作会针对关注节点来做</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_1_case_3.png" alt="red-black-tree-delete-step-1-case-3"></p>
+<p>2.2 针对关注节点进行第二次调整</p>
+<p>经过初步调整后，关注节点变成了“红-黑”或者“黑-黑”，针对这个节点，再分四种情况，二次调整是为了满足红黑树第四条定义。</p>
+<p><strong>case 1</strong>：如果关注节点是a，它的兄弟节点c是红色的，就依次执行下面的操作：</p>
+<ul>
+<li>围绕关注节点a的父节点b左旋</li>
+<li>关注节点a的父节点b和祖父节点c交换颜色</li>
+<li>关注节点不变</li>
+<li>继续从四种情况中选择合适的规则来调整</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_1.png" alt="red-black-tree-delete-step-2-case-1"></p>
+<p><strong>case 2</strong>：如果关注节点是a，它的兄弟节点c是黑色的，并且节点c的左右子节点d、e都是黑色的，就依次进行下面的操作：</p>
+<ul>
+<li>将关注节点a的兄弟节点c的颜色变成红色</li>
+<li>从关注节点a中去掉一个黑色，这个时候节点a就是单纯的红色或者黑色</li>
+<li>给关注节点a的父节点b添加一个黑色，这个时候b就变成了“红-黑”或者“黑-黑”</li>
+<li>关注节点变成a的父节点b</li>
+<li>继续从四种情况中选择合适的规则来调整</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_2.png" alt="red-black-tree-delete-step-2-case-2"></p>
+<p><strong>case 3</strong>：如果关注节点是a，它的兄弟节点c是黑色的，c的左子节点d是红色，c的右子节点e是黑色，就依次进行下面的操作：</p>
+<ul>
+<li>围绕关注节点a的兄弟节点c右旋</li>
+<li>节点c和节点d交换颜色</li>
+<li>关注节点不变</li>
+<li>跳转到case4，继续调整</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_3.png" alt="red-black-tree-delete-step-2-case-3"></p>
+<p><strong>case 4</strong>：如果关注节点a的兄弟节点c是黑色的，并且c的右子节点是红色的，就依次进行下面的操作：</p>
+<ul>
+<li>围绕关注节点a的父节点b左旋</li>
+<li>将关注节点a的兄弟节点c的颜色，跟关注节点a的父节点b设置成一样的颜色</li>
+<li>将关注节点a的父节点b的颜色设置为黑色</li>
+<li>从关注节点a中去掉一个黑色，节点a变成单纯的红色或者黑色</li>
+<li>将关注节点a的叔叔节点e设置为黑色</li>
+<li>调整结束</li>
+</ul>
+<p>如图：<img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/red_black_tree_delete_step_2_case_4.png" alt="red-black-tree-delete-step-2-case-4"></p>
+<p>红黑树的平衡调整策略比较复杂，不需要试图去记住他们，看懂整个过程就行了，一般不会让写实现，知道原理就行了。</p>
+<p>总结一下调整过程的几个要素：</p>
+<ol>
+<li>把红黑树的平衡调整的过程比作魔方复原，不要过于深究这个算法的正确性</li>
+</ol>
+<blockquote>
+<p>只需要明白按照固定的操作步骤，保持插入、删除的过程不破坏平衡树的定义</p>
+</blockquote>
+<ol start="2">
+<li>找准关注节点，不要搞丢、搞错关注节点</li>
+</ol>
+<blockquote>
+<p>每种操作规则都是针对关注节点来做的，弄对了关注节点最重要，调整过程中，关注节点不停地改变</p>
+</blockquote>
+<ol start="3">
+<li>插入操作的平衡调整比较简单，删除操作的比较复杂。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果对你有用，可以请我吃桶泡面~</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/imgs/wxpay.jpg" alt="Jack Huang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/imgs/alipay.jpg" alt="Jack Huang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/data-structure/" rel="tag"># data-structure</a>
+          
+            <a href="/tags/tree/" rel="tag"># tree</a>
+          
+            <a href="/tags/red-black-tree/" rel="tag"># red-black-tree</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/25/OkHttp源码分析/" rel="next" title="OkHttp源码分析">
+                <i class="fa fa-chevron-left"></i> OkHttp源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/09/jdk1-8-HashMap源码分析/" rel="prev" title="jdk1.8#HashMap源码分析">
+                jdk1.8#HashMap源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zOTY3My8xNjIwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/imgs/avatar.jpg" alt="Jack Huang">
+            
+              <p class="site-author-name" itemprop="name">Jack Huang</p>
+              <p class="site-description motion-element" itemprop="description">一生放荡不羁爱自由</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/huangzhengneng" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#红黑树"><span class="nav-number">1.</span> <span class="nav-text">红黑树</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jack Huang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

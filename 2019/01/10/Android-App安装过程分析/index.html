@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="android,source analysis,">
+
+
+
+
+
+
+
+
+
+
+<meta name="keywords" content="android,source analysis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android-App安装过程分析">
+<meta property="og:url" content="http://yoursite.com/2019/01/10/Android-App安装过程分析/index.html">
+<meta property="og:site_name" content="JackHuang&#39;s Blog">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/app_install_flow_cover.jpeg">
+<meta property="og:updated_time" content="2019-11-21T03:11:22.409Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android-App安装过程分析">
+<meta name="twitter:image" content="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/app_install_flow_cover.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/01/10/Android-App安装过程分析/">
+
+
+
+
+
+  <title>Android-App安装过程分析 | JackHuang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ef71052981073e959c5e3ed921733a9e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JackHuang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/10/Android-App安装过程分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Huang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/imgs/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JackHuang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android-App安装过程分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-10T18:01:44+08:00">
+                2019-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index">
+                    <span itemprop="name">android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://github.com/huangzhengneng/ImageFactory/raw/master/blog/app_install_flow_cover.jpeg" alt="app_install_flow"></p>
+<hr>
+<a id="more"></a>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>以前从来没有关注过app安装具体是怎样一个流程，apk文件中的各个模块什么时候被解析的，这次自己查看了源码，跟踪了安装app的具体流程，终于大体弄明白了。本文将从点击apk文件安装，到打开首页整个过程分析源代码，主要涉及PackageInstaller的系统app。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">本文基于Android 7.1.0 api25源码分析</span><br></pre></td></tr></table></figure></p>
+<h2 id="click-install"><a href="#click-install" class="headerlink" title="click install"></a>click install</h2><h3 id="PackageInstallerActivity"><a href="#PackageInstallerActivity" class="headerlink" title="PackageInstallerActivity"></a>PackageInstallerActivity</h3><p>通过adb命令<code>adb shell dumpsys activity | grep &quot;mFocusedActivity&quot;</code>可以看到点击安装app时，当前的Activity是PackageInstallerActivity，该activity是系统内置应用PackageInstaller的MainActivity，跳过前面的权限判断、uri解析等步骤，关注我们点击该页面的安装按钮时，调用的是PackageInstallerActivity.startInstall()方法：<br><figure class="highlight java"><figcaption><span>PackageInstallerActivity.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startInstall</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Start subactivity to actually install the application</span></span><br><span class="line">    Intent newIntent = <span class="keyword">new</span> Intent();</span><br><span class="line">    <span class="comment">// applicationInfo</span></span><br><span class="line">    newIntent.putExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO,</span><br><span class="line">            mPkgInfo.applicationInfo);</span><br><span class="line">    <span class="comment">// packageUri</span></span><br><span class="line">    newIntent.setData(mPackageURI);</span><br><span class="line">    <span class="comment">// 启动名叫InstallAppProgress的Activity</span></span><br><span class="line">    newIntent.setClass(<span class="keyword">this</span>, InstallAppProgress<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    ...</span><br><span class="line">    startActivity(newIntent);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="InstallAppProgress"><a href="#InstallAppProgress" class="headerlink" title="InstallAppProgress"></a>InstallAppProgress</h3><p>startInstall()方法就是开启了InstallAppProgress页面，并传入相关app的参数，来到InstallAppProgressActivity，重点在initView方法内：<br><figure class="highlight java"><figcaption><span>InstallAppProgress.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">initView</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (<span class="string">"package"</span>.equals(mPackageURI.getScheme())) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            pm.installExistingPackage(mAppInfo.packageName);</span><br><span class="line">            onPackageInstalled(PackageInstaller.STATUS_SUCCESS);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (PackageManager.NameNotFoundException e) &#123;</span><br><span class="line">            onPackageInstalled(PackageInstaller.STATUS_FAILURE_INVALID);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        mInstallHandler.post(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                doPackageStage(pm, params);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>若该app已经存在系统中了，就会调用PackageManager的installExistingPackage方法，这种主要是系统中有多个用户，其中一个用户安装另一个用户已经安装了的app，就会走这个逻辑，installExistingPackage方法也主要就是修改一些针对当前系统用户的设置信息和创建app的一些数据。else分支就是我们正常安装一个新app的逻辑doPackageStage()方法：<br><figure class="highlight java"><figcaption><span>InstallAppProgress.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doPackageStage</span><span class="params">(PackageManager pm, PackageInstaller.SessionParams params)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> PackageInstaller packageInstaller = pm.getPackageInstaller();</span><br><span class="line">    PackageInstaller.Session session = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> String packageLocation = mPackageURI.getPath();</span><br><span class="line">        ...</span><br><span class="line">        session = packageInstaller.openSession(sessionId);</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">// Create a PendingIntent and use it to generate the IntentSender</span></span><br><span class="line">        Intent broadcastIntent = <span class="keyword">new</span> Intent(BROADCAST_ACTION);</span><br><span class="line">        PendingIntent pendingIntent = PendingIntent.getBroadcast(</span><br><span class="line">                InstallAppProgress.<span class="keyword">this</span> <span class="comment">/*context*/</span>,</span><br><span class="line">                sessionId,</span><br><span class="line">                broadcastIntent,</span><br><span class="line">                PendingIntent.FLAG_UPDATE_CURRENT);</span><br><span class="line">        <span class="comment">// 进入PackageInstaller.Session</span></span><br><span class="line">        session.commit(pendingIntent.getIntentSender());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        onPackageInstalled(PackageInstaller.STATUS_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="PackageInstaller"><a href="#PackageInstaller" class="headerlink" title="PackageInstaller"></a>PackageInstaller</h3><p>doPackageStage()方法最终会进入PackageInstaller中：<br><figure class="highlight java"><figcaption><span>PackageInstaller.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="meta">@NonNull</span> <span class="function">Session <span class="title">openSession</span><span class="params">(<span class="keyword">int</span> sessionId)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// mInstaller是IPackageInstaller类型，该接口的具体实现是PackageInstallerService类</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Session(mInstaller.openSession(sessionId));</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><figure class="highlight java"><figcaption><span>PackageInstaller.Session</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">commit</span><span class="params">(@NonNull IntentSender statusReceiver)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// mSession即上面mInstaller.openSession方法返回值</span></span><br><span class="line">        <span class="comment">// 类型是IPackageInstallerSession，该接口的具体实现是PackageInstallerSession类</span></span><br><span class="line">        mSession.commit(statusReceiver);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> e.rethrowFromSystemServer();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="PackageInstallerSession"><a href="#PackageInstallerSession" class="headerlink" title="PackageInstallerSession"></a>PackageInstallerSession</h3><p>上面从PackageInstaller类到其内部类Session的commit()方法，中间传入PackageInstallerService.openSession方法返回的PackageInstallerSession实例，最终调用了PackageInstallerSession.commit()方法：<br><figure class="highlight java"><figcaption><span>PackageInstallerSession.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">commit</span><span class="params">(IntentSender statusReceiver)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> PackageInstallObserverAdapter adapter = <span class="keyword">new</span> PackageInstallObserverAdapter(mContext,</span><br><span class="line">            statusReceiver, sessionId, mIsInstallerDeviceOwner, userId);</span><br><span class="line">    <span class="comment">// 交给handler处理，该handler只有一种what，直接在全局变量mHandlerCallback的handleMessage方法中处理了</span></span><br><span class="line">    mHandler.obtainMessage(MSG_COMMIT, adapter.getBinder()).sendToTarget();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Handler.Callback mHandlerCallback = <span class="keyword">new</span> Handler.Callback() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            commitLocked(pkgInfo, appInfo);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (PackageManagerException e) &#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">commitLocked</span><span class="params">(PackageInfo pkgInfo, ApplicationInfo appInfo)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> PackageManagerException </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 验证apk，签名，包名等信息</span></span><br><span class="line">    validateInstallLocked(pkgInfo, appInfo);</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 解压native即apk包下lib文件夹下的内容，复制当前机型的cpu对应abi类型的二进制文件</span></span><br><span class="line">    extractNativeLibraries(mResolvedStageDir, params.abiOverride);</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// mPm是IPackageManager类型，具体实现就是PackageManagerService(PKMS)</span></span><br><span class="line">    mPm.installStage(mPackageName, stageDir, stageCid, localObserver, params,</span><br><span class="line">                installerPackageName, installerUid, user, mCertificates);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="install"><a href="#install" class="headerlink" title="install"></a>install</h2><h3 id="PackageManagerService"><a href="#PackageManagerService" class="headerlink" title="PackageManagerService"></a>PackageManagerService</h3><p>从上面的代码中可以看见，经过PackageInstallerSession内部的流转，最终进入PackageManagerService中，在进入PKMS中之前，会获取apk内的native库。接下来进入PKMS：<br><figure class="highlight java"><figcaption><span>PackageManagerService.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">installStage</span><span class="params">(String packageName, File stagedDir, String stagedCid,</span></span></span><br><span class="line"><span class="function"><span class="params">            IPackageInstallObserver2 observer, PackageInstaller.SessionParams sessionParams,</span></span></span><br><span class="line"><span class="function"><span class="params">            String installerPackageName, <span class="keyword">int</span> installerUid, UserHandle user,</span></span></span><br><span class="line"><span class="function"><span class="params">            Certificate[][] certificates)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> Message msg = mHandler.obtainMessage(INIT_COPY);</span><br><span class="line">    <span class="keyword">final</span> InstallParams params = <span class="keyword">new</span> InstallParams(origin, <span class="keyword">null</span>, observer,</span><br><span class="line">            sessionParams.installFlags, installerPackageName, sessionParams.volumeUuid,</span><br><span class="line">            verificationInfo, user, sessionParams.abiOverride,</span><br><span class="line">            sessionParams.grantedRuntimePermissions, certificates);</span><br><span class="line">    msg.obj = params;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 进入handler，what=INIT_COPY</span></span><br><span class="line">    mHandler.sendMessage(msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>installStage方法会进入Handler#handleMessage方法中，该方法内有几处流转：<br><figure class="highlight java"><figcaption><span>PackageManagerService.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doHandleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">        <span class="keyword">case</span> INIT_COPY: &#123;</span><br><span class="line">            HandlerParams params = (HandlerParams) msg.obj;</span><br><span class="line">            <span class="keyword">int</span> idx = mPendingInstalls.size();</span><br><span class="line">            <span class="keyword">if</span> (!mBound) &#123; <span class="comment">// mBound表示绑定过该次安装的intent，安装完成会解绑</span></span><br><span class="line">                <span class="comment">// 绑定成功会加入到mPendingInstalls的list中待安装，即系统同一时间只能安装一个app，其它的在list中排队</span></span><br><span class="line">                <span class="keyword">if</span> (!connectToService()) &#123;</span><br><span class="line">                    ...</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    mPendingInstalls.add(idx, params);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                mPendingInstalls.add(idx, params);</span><br><span class="line">                <span class="keyword">if</span> (idx == <span class="number">0</span>) &#123; <span class="comment">// 进入MCS_BOUND</span></span><br><span class="line">                    mHandler.sendEmptyMessage(MCS_BOUND);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="keyword">case</span> MCS_BOUND: &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">if</span> (mPendingInstalls.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            HandlerParams params = mPendingInstalls.get(<span class="number">0</span>);</span><br><span class="line">            <span class="keyword">if</span> (params != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (params.startCopy()) &#123; <span class="comment">// 重点，进入拷贝apk阶段</span></span><br><span class="line">                    <span class="keyword">if</span> (mPendingInstalls.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                        mPendingInstalls.remove(<span class="number">0</span>);<span class="comment">// 移除</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (mPendingInstalls.size() == <span class="number">0</span>) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (mBound) &#123;</span><br><span class="line">                            ... <span class="comment">// 解绑</span></span><br><span class="line">                            sendMessageDelayed(MCS_UNBIND, <span class="number">10000</span>);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        ... <span class="comment">// 递归安装下一个</span></span><br><span class="line">                        mHandler.sendEmptyMessage(MCS_BOUND);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="PackageManagerService-InstallParams"><a href="#PackageManagerService-InstallParams" class="headerlink" title="PackageManagerService.InstallParams"></a>PackageManagerService.InstallParams</h3><p>上面的代码中可以看见，系统是按照顺序一个一个安装app的，安装时进入HandlerParams.startCopy方法，该方法又进入handleStartCopy方法，这是个抽象方法，具体实现在InstallParams类中，上面installStage方法的代码中也能看见传入的就是InstallParams实例:<br><figure class="highlight java"><figcaption><span>PackageManagerService.InstallParams</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleStartCopy</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret = PackageManager.INSTALL_SUCCEEDED;</span><br><span class="line">    <span class="comment">// 返回的是FileInstallArgs类实例</span></span><br><span class="line">    <span class="keyword">final</span> InstallArgs args = createInstallArgs(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret == PackageManager.INSTALL_SUCCEEDED) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">if</span> (ret == PackageManager.INSTALL_SUCCEEDED</span><br><span class="line">                            &amp;&amp; mRequiredVerifierPackage != <span class="keyword">null</span>) &#123;</span><br><span class="line">            ...</span><br><span class="line">            mContext.sendOrderedBroadcastAsUser(verification, verifierUser,</span><br><span class="line">                    android.Manifest.permission.PACKAGE_VERIFICATION_AGENT,</span><br><span class="line">                    <span class="keyword">new</span> BroadcastReceiver() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>&#123;</span><br><span class="line">                            <span class="keyword">final</span> Message msg = mHandler</span><br><span class="line">                                    .obtainMessage(CHECK_PENDING_VERIFICATION);</span><br><span class="line">                            msg.arg1 = verificationId;</span><br><span class="line">                            <span class="comment">// 再次进入handler,what=CHECK_PENDING_VERIFICATION</span></span><br><span class="line">                            mHandler.sendMessageDelayed(msg, getVerificationTimeout());</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;, <span class="keyword">null</span>, <span class="number">0</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doHandleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">        <span class="keyword">case</span> CHECK_PENDING_VERIFICATION: &#123;</span><br><span class="line">            ...</span><br><span class="line">            <span class="comment">// 安装</span></span><br><span class="line">            processPendingInstall(args, ret);</span><br><span class="line">            <span class="comment">// 解绑</span></span><br><span class="line">            mHandler.sendEmptyMessage(MCS_UNBIND);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="PackageManagerService-1"><a href="#PackageManagerService-1" class="headerlink" title="PackageManagerService"></a>PackageManagerService</h3><figure class="highlight java"><figcaption><span>PackageManagerService.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processPendingInstall</span><span class="params">(<span class="keyword">final</span> InstallArgs args, <span class="keyword">final</span> <span class="keyword">int</span> currentStatus)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Queue up an async operation since the package installation may take a little while.</span></span><br><span class="line">        mHandler.post(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (res.returnCode == PackageManager.INSTALL_SUCCEEDED) &#123;</span><br><span class="line">                    <span class="comment">// args是FileInstallArgs</span></span><br><span class="line">                    args.doPreInstall(res.returnCode);</span><br><span class="line">                    <span class="keyword">synchronized</span> (mInstallLock) &#123;</span><br><span class="line">                        installPackageTracedLI(args, res);</span><br><span class="line">                    &#125;</span><br><span class="line">                    args.doPostInstall(res.returnCode, res.uid);</span><br><span class="line">                &#125;</span><br><span class="line">                ...</span><br><span class="line">                <span class="keyword">if</span> (res.returnCode == PackageManager.INSTALL_SUCCEEDED &amp;&amp; doRestore) &#123;</span><br><span class="line">                    IBackupManager bm = IBackupManager.Stub.asInterface(</span><br><span class="line">                            ServiceManager.getService(Context.BACKUP_SERVICE));</span><br><span class="line">                    ...</span><br><span class="line">                    <span class="comment">// 备份，备份之后会流转回到PKMS的handlePackagePostInstall方法，该方法中会发送Intent.ACTION_PACKAGE_ADDED广播，自此安装完毕</span></span><br><span class="line">                    bm.restoreAtInstall(res.pkg.applicationInfo.packageName, token);</span><br><span class="line">                &#125;</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installPackageTracedLI</span><span class="params">(InstallArgs args, PackageInstalledInfo res)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    installPackageLI(args, res);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installPackageLI</span><span class="params">(InstallArgs args, PackageInstalledInfo res)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    PackageParser pp = <span class="keyword">new</span> PackageParser();</span><br><span class="line">    <span class="keyword">final</span> PackageParser.Package pkg;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 重点: 解析安装包</span></span><br><span class="line">        pkg = pp.parsePackage(tmpPackageFile, parseFlags);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (PackageParserException e) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (!forwardLocked &amp;&amp; !pkg.applicationInfo.isExternalAsec()) &#123;</span><br><span class="line">        ... <span class="comment">// dexopt dex优化操作</span></span><br><span class="line">        mPackageDexOptimizer.performDexOpt(pkg, pkg.usesLibraryFiles,</span><br><span class="line">                <span class="keyword">null</span> <span class="comment">/* instructionSets */</span>, <span class="keyword">false</span> <span class="comment">/* checkProfiles */</span>,</span><br><span class="line">                getCompilerFilterForReason(REASON_INSTALL),</span><br><span class="line">                getOrCreateCompilerPackageStats(pkg));</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (replace) &#123; <span class="comment">// 更新, 最终会进入replaceNonSystemPackageLIF方法替换成新包，本次主要讲新安装</span></span><br><span class="line">        replacePackageLIF(pkg, parseFlags, scanFlags | SCAN_REPLACING, args.user,</span><br><span class="line">                installerPackageName, res);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 新安装</span></span><br><span class="line">        installNewPackageLIF(pkg, parseFlags, scanFlags | SCAN_DELETE_DATA_ON_FAILURES,</span><br><span class="line">                args.user, installerPackageName, volumeUuid, res);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="PackageParser"><a href="#PackageParser" class="headerlink" title="PackageParser"></a>PackageParser</h3><p>拷贝apk文件之后，进入PKMS.installPackageLI方法，这个方法内主要是两个步骤，第一个是解析apk包，第二步是安装，安装分为更新和新安装，这里主要分析新安装。installPackageLI方法执行完毕后面会执行bm.restoreAtInstall备份，备份之后会流转回到PKMS的handlePackagePostInstall方法，该方法中会发送Intent.ACTION_PACKAGE_ADDED广播，自此安装完毕。先看看解析apk这一步，来到PackageParser.parsePackage()方法：<br><figure class="highlight java"><figcaption><span>PackageParser.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Package <span class="title">parsePackage</span><span class="params">(File packageFile, <span class="keyword">int</span> flags)</span> <span class="keyword">throws</span> PackageParserException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (packageFile.isDirectory()) &#123; <span class="comment">// 多个apk文件的解析,内部也是一个一个的解析的，这里不做主要分析</span></span><br><span class="line">        <span class="keyword">return</span> parseClusterPackage(packageFile, flags);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 单个apk文件的解析</span></span><br><span class="line">        <span class="keyword">return</span> parseMonolithicPackage(packageFile, flags);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> Package <span class="title">parseMonolithicPackage</span><span class="params">(File apkFile, <span class="keyword">int</span> flags)</span> <span class="keyword">throws</span> PackageParserException </span>&#123;</span><br><span class="line">    <span class="comment">// parseMonolithicPackageLite方法主要解析AndroidManifest.xml中installLocation、versionCode、versionName和&lt;manifest&gt;标签以外的内容</span></span><br><span class="line">    <span class="keyword">final</span> PackageLite lite = parseMonolithicPackageLite(apkFile, flags);</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> AssetManager assets = <span class="keyword">new</span> AssetManager();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 解析&lt;manifest&gt;标签以内的未解析的内容</span></span><br><span class="line">        <span class="keyword">final</span> Package pkg = parseBaseApk(apkFile, assets, flags);</span><br><span class="line">        ...</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Package <span class="title">parseBaseApk</span><span class="params">(File apkFile, AssetManager assets, <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> PackageParserException </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    parser = assets.openXmlResourceParser(cookie, ANDROID_MANIFEST_FILENAME);</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> Package pkg = parseBaseApk(res, parser, flags, outError);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Package <span class="title">parseBaseApk</span><span class="params">(Resources res, XmlResourceParser parser, <span class="keyword">int</span> flags,</span></span></span><br><span class="line"><span class="function"><span class="params">            String[] outError)</span> <span class="keyword">throws</span> XmlPullParserException, IOException </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> parseBaseApkCommon(pkg, <span class="keyword">null</span>, res, parser, flags, outError);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>PackageParse内部经过流转，最终进入parseBaseApkCommon方法，解析AndroidManifest.xml文件：<br><figure class="highlight java"><figcaption><span>PackageParser.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Package <span class="title">parseBaseApkCommon</span><span class="params">(Package pkg, Set&lt;String&gt; acceptedTags, Resources res,</span></span></span><br><span class="line"><span class="function"><span class="params">            XmlResourceParser parser, <span class="keyword">int</span> flags, String[] outError)</span> <span class="keyword">throws</span> XmlPullParserException,</span></span><br><span class="line"><span class="function">            IOException </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> outerDepth = parser.getDepth();</span><br><span class="line">    <span class="keyword">while</span> ((type = parser.next()) != XmlPullParser.END_DOCUMENT</span><br><span class="line">            &amp;&amp; (type != XmlPullParser.END_TAG || parser.getDepth() &gt; outerDepth)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (tagName.equals(TAG_APPLICATION)) &#123; <span class="comment">// application tag解析</span></span><br><span class="line">            <span class="keyword">if</span> (!parseBaseApplication(pkg, res, parser, flags, outError)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(...) &#123; <span class="comment">// 除application tag以外的全部tag的解析，overlay、keyset、permission、user-feature等等</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">parseBaseApplication</span><span class="params">(Package owner, Resources res,</span></span></span><br><span class="line"><span class="function"><span class="params">            XmlResourceParser parser, <span class="keyword">int</span> flags, String[] outError)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> XmlPullParserException, IOException </span>&#123;</span><br><span class="line">    ... <span class="comment">// 解析application标签的属性值，theme、allowBackup等等所以的属性</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> innerDepth = parser.getDepth();</span><br><span class="line">    <span class="keyword">int</span> type;</span><br><span class="line">    <span class="keyword">while</span> ((type = parser.next()) != XmlPullParser.END_DOCUMENT</span><br><span class="line">            &amp;&amp; (type != XmlPullParser.END_TAG || parser.getDepth() &gt; innerDepth)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (tagName.equals(<span class="string">"activity"</span>)) &#123; <span class="comment">// 解析activity</span></span><br><span class="line">            Activity a = parseActivity(owner, res, parser, flags, outError, <span class="keyword">false</span>,</span><br><span class="line">                    owner.baseHardwareAccelerated);</span><br><span class="line">            ...</span><br><span class="line">            owner.activities.add(a);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tagName.equals(<span class="string">"receiver"</span>)) &#123; <span class="comment">// receiver跟activity一样调用的parseActivity方法</span></span><br><span class="line">            Activity a = parseActivity(owner, res, parser, flags, outError, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">            ...</span><br><span class="line">            owner.receivers.add(a);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tagName.equals(<span class="string">"service"</span>)) &#123;</span><br><span class="line">            Service s = parseService(owner, res, parser, flags, outError);</span><br><span class="line">            ...</span><br><span class="line">            owner.services.add(s);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tagName.equals(<span class="string">"provider"</span>)) &#123;</span><br><span class="line">            Provider p = parseProvider(owner, res, parser, flags, outError);</span><br><span class="line">            ...</span><br><span class="line">            owner.providers.add(p);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(...) &#123; <span class="comment">// 其它标签，activity-alias、meta-data、library等等</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="dexopt"><a href="#dexopt" class="headerlink" title="dexopt"></a>dexopt</h2><p>上述源码，描述的就是解析AndroidManifest.xml文件的过程，解析之后，系统就保存了该apk内部的组件信息。接下来的一步就是dexOpt了，优化dex操作，是安装apk中比较重要的一个步骤：</p>
+<h3 id="PackageDexOptimizer"><a href="#PackageDexOptimizer" class="headerlink" title="PackageDexOptimizer"></a>PackageDexOptimizer</h3><figure class="highlight java"><figcaption><span>PackageDexOptimizer.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">performDexOpt</span><span class="params">(PackageParser.Package pkg, String[] sharedLibraries,</span></span></span><br><span class="line"><span class="function"><span class="params">            String[] instructionSets, <span class="keyword">boolean</span> checkProfiles, String targetCompilationFilter,</span></span></span><br><span class="line"><span class="function"><span class="params">            CompilerStats.PackageStats packageStats)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (mInstallLock) &#123;</span><br><span class="line">        <span class="keyword">return</span> performDexOptLI(pkg, sharedLibraries, instructionSets, checkProfiles,  </span><br><span class="line">                        targetCompilationFilter, packageStats);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">performDexOptLI</span><span class="params">(PackageParser.Package pkg, String[] sharedLibraries,</span></span></span><br><span class="line"><span class="function"><span class="params">            String[] targetInstructionSets, <span class="keyword">boolean</span> checkProfiles, String targetCompilerFilter,</span></span></span><br><span class="line"><span class="function"><span class="params">            CompilerStats.PackageStats packageStats)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> String[] dexCodeInstructionSets = getDexCodeInstructionSets(instructionSets);</span><br><span class="line">    <span class="keyword">for</span> (String dexCodeInstructionSet : dexCodeInstructionSets) &#123;</span><br><span class="line">        <span class="keyword">for</span> (String path : paths) &#123;</span><br><span class="line">            ...</span><br><span class="line">            mInstaller.dexopt(path, sharedGid, pkg.packageName, dexCodeInstructionSet,</span><br><span class="line">                    dexoptNeeded, oatDir, dexFlags, targetCompilerFilter, pkg.volumeUuid,</span><br><span class="line">                    sharedLibrariesPath);</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Installer"><a href="#Installer" class="headerlink" title="Installer"></a>Installer</h3><figure class="highlight java"><figcaption><span>Installer.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dexopt</span><span class="params">(String apkPath, <span class="keyword">int</span> uid, String pkgName, String instructionSet,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">int</span> dexoptNeeded, @Nullable String outputPath, <span class="keyword">int</span> dexFlags,</span></span></span><br><span class="line"><span class="function"><span class="params">            String compilerFilter, String volumeUuid, String sharedLibraries)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> InstallerException </span>&#123;</span><br><span class="line">    mInstaller.dexopt(apkPath, uid, pkgName, instructionSet, dexoptNeeded,</span><br><span class="line">            outputPath, dexFlags, compilerFilter, volumeUuid, sharedLibraries);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="InstallerConnection"><a href="#InstallerConnection" class="headerlink" title="InstallerConnection"></a>InstallerConnection</h3><figure class="highlight java"><figcaption><span>InstallerConnection.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dexopt</span><span class="params">(String apkPath, <span class="keyword">int</span> uid, String pkgName, String instructionSet,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">int</span> dexoptNeeded, String outputPath, <span class="keyword">int</span> dexFlags, String compilerFilter,</span></span></span><br><span class="line"><span class="function"><span class="params">            String volumeUuid, String sharedLibraries)</span> <span class="keyword">throws</span> InstallerException </span>&#123;</span><br><span class="line">    execute(<span class="string">"dexopt"</span>,</span><br><span class="line">            apkPath,</span><br><span class="line">            uid,</span><br><span class="line">            pkgName,</span><br><span class="line">            instructionSet,</span><br><span class="line">            dexoptNeeded,</span><br><span class="line">            outputPath,</span><br><span class="line">            dexFlags,</span><br><span class="line">            compilerFilter,</span><br><span class="line">            volumeUuid,</span><br><span class="line">            sharedLibraries);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> String[] execute(String cmd, Object... args) <span class="keyword">throws</span> InstallerException &#123;</span><br><span class="line">    <span class="keyword">final</span> StringBuilder builder = <span class="keyword">new</span> StringBuilder(cmd);</span><br><span class="line">    ... <span class="comment">// 构建参数</span></span><br><span class="line">    <span class="keyword">final</span> String[] resRaw = transact(builder.toString()).split(<span class="string">" "</span>);</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> resRaw;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> String <span class="title">transact</span><span class="params">(String cmd)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (!connect()) &#123; <span class="comment">// 连接socket</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!writeCommand(cmd)) &#123; <span class="comment">// 写入dexopt命令,执行优化</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/// reply</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> replyLength = readReply();</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="native-commands-cpp"><a href="#native-commands-cpp" class="headerlink" title="native commands.cpp"></a>native commands.cpp</h3><p>上述流转最后进入到native层的commands.cpp文件(位于android 7.1源码中frameworks/native/cmds/installd/文件夹下)中的dexopt方法：<br><figure class="highlight c"><figcaption><span>++ commands.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dexopt</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> params[DEXOPT_PARAM_COUNT])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> dexopt(params[<span class="number">0</span>],                    <span class="comment">// apk_path</span></span><br><span class="line">                  atoi(params[<span class="number">1</span>]),              <span class="comment">// uid</span></span><br><span class="line">                  params[<span class="number">2</span>],                    <span class="comment">// pkgname</span></span><br><span class="line">                  params[<span class="number">3</span>],                    <span class="comment">// instruction_set</span></span><br><span class="line">                  atoi(params[<span class="number">4</span>]),              <span class="comment">// dexopt_needed</span></span><br><span class="line">                  params[<span class="number">5</span>],                    <span class="comment">// oat_dir</span></span><br><span class="line">                  atoi(params[<span class="number">6</span>]),              <span class="comment">// dexopt_flags</span></span><br><span class="line">                  params[<span class="number">7</span>],                    <span class="comment">// compiler_filter</span></span><br><span class="line">                  parse_null(params[<span class="number">8</span>]),        <span class="comment">// volume_uuid</span></span><br><span class="line">                  parse_null(params[<span class="number">9</span>]));       <span class="comment">// shared_libraries</span></span><br><span class="line">    <span class="keyword">static_assert</span>(DEXOPT_PARAM_COUNT == <span class="number">10U</span>, <span class="string">"Unexpected dexopt param count"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dexopt</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* apk_path, <span class="keyword">uid_t</span> uid, <span class="keyword">const</span> <span class="keyword">char</span>* pkgname, <span class="keyword">const</span> <span class="keyword">char</span>* instruction_set,</span></span></span><br><span class="line"><span class="function"><span class="params">           <span class="keyword">int</span> dexopt_needed, <span class="keyword">const</span> <span class="keyword">char</span>* oat_dir, <span class="keyword">int</span> dexopt_flags, <span class="keyword">const</span> <span class="keyword">char</span>* compiler_filter,</span></span></span><br><span class="line"><span class="function"><span class="params">           <span class="keyword">const</span> <span class="keyword">char</span>* volume_uuid ATTRIBUTE_UNUSED, <span class="keyword">const</span> <span class="keyword">char</span>* shared_libraries)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">bool</span> is_public = ((dexopt_flags &amp; DEXOPT_PUBLIC) != <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">bool</span> vm_safe_mode = (dexopt_flags &amp; DEXOPT_SAFEMODE) != <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">bool</span> debuggable = (dexopt_flags &amp; DEXOPT_DEBUGGABLE) != <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">bool</span> boot_complete = (dexopt_flags &amp; DEXOPT_BOOTCOMPLETE) != <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">bool</span> profile_guided = (dexopt_flags &amp; DEXOPT_PROFILE_GUIDED) != <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Don't use profile for vm_safe_mode. b/30688277</span></span><br><span class="line">    profile_guided = profile_guided &amp;&amp; !vm_safe_mode;</span><br><span class="line"></span><br><span class="line">    CHECK(pkgname != <span class="literal">nullptr</span>);</span><br><span class="line">    CHECK(pkgname[<span class="number">0</span>] != <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Public apps should not be compiled with profile information ever. Same goes for the special</span></span><br><span class="line">    <span class="comment">// package '*' used for the system server.</span></span><br><span class="line">    Dex2oatFileWrapper&lt;<span class="built_in">std</span>::function&lt;<span class="keyword">void</span> ()&gt;&gt; reference_profile_fd;</span><br><span class="line">    <span class="keyword">if</span> (!is_public &amp;&amp; pkgname[<span class="number">0</span>] != <span class="string">'*'</span>) &#123;</span><br><span class="line">        <span class="comment">// Open reference profile in read only mode as dex2oat does not get write permissions.</span></span><br><span class="line">        <span class="keyword">const</span> <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">pkgname_str</span><span class="params">(pkgname)</span></span>;</span><br><span class="line">        reference_profile_fd.reset(open_reference_profile(uid, pkgname, <span class="comment">/*read_write*/</span> <span class="literal">false</span>),</span><br><span class="line">                                   [pkgname_str]() &#123;</span><br><span class="line">                                       clear_reference_profile(pkgname_str.c_str());</span><br><span class="line">                                   &#125;);</span><br><span class="line">        <span class="comment">// Note: it's OK to not find a profile here.</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((dexopt_flags &amp; ~DEXOPT_MASK) != <span class="number">0</span>) &#123;</span><br><span class="line">        LOG_FATAL(<span class="string">"dexopt flags contains unknown fields\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> out_path[PKG_PATH_MAX];</span><br><span class="line">    <span class="keyword">if</span> (!create_oat_out_path(apk_path, instruction_set, oat_dir, out_path)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *input_file;</span><br><span class="line">    <span class="keyword">char</span> in_odex_path[PKG_PATH_MAX];</span><br><span class="line">    <span class="keyword">switch</span> (dexopt_needed) &#123;</span><br><span class="line">        <span class="keyword">case</span> DEXOPT_DEX2OAT_NEEDED:</span><br><span class="line">            input_file = apk_path;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> DEXOPT_PATCHOAT_NEEDED:</span><br><span class="line">            <span class="keyword">if</span> (!calculate_odex_file_path(in_odex_path, apk_path, instruction_set)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            input_file = in_odex_path;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> DEXOPT_SELF_PATCHOAT_NEEDED:</span><br><span class="line">            input_file = out_path;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            ALOGE(<span class="string">"Invalid dexopt needed: %d\n"</span>, dexopt_needed);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">72</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">input_stat</span>;</span></span><br><span class="line">    <span class="built_in">memset</span>(&amp;input_stat, <span class="number">0</span>, <span class="keyword">sizeof</span>(input_stat));</span><br><span class="line">    stat(input_file, &amp;input_stat);</span><br><span class="line"></span><br><span class="line">    base::<span class="function">unique_fd <span class="title">input_fd</span><span class="params">(open(input_file, O_RDONLY, <span class="number">0</span>))</span></span>;</span><br><span class="line">    <span class="keyword">if</span> (input_fd.get() &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"installd cannot open '%s' for input during dexopt\n"</span>, input_file);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">out_path_str</span><span class="params">(out_path)</span></span>;</span><br><span class="line">    Dex2oatFileWrapper&lt;<span class="built_in">std</span>::function&lt;<span class="keyword">void</span> ()&gt;&gt; out_fd(</span><br><span class="line">            open_output_file(out_path, <span class="comment">/*recreate*/</span><span class="literal">true</span>, <span class="comment">/*permissions*/</span><span class="number">0644</span>),</span><br><span class="line">            [out_path_str]() &#123; unlink(out_path_str.c_str()); &#125;);</span><br><span class="line">    <span class="keyword">if</span> (out_fd.get() &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"installd cannot open '%s' for output during dexopt\n"</span>, out_path);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!set_permissions_and_ownership(out_fd.get(), is_public, uid, out_path)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create a swap file if necessary.</span></span><br><span class="line">    base::unique_fd swap_fd;</span><br><span class="line">    <span class="keyword">if</span> (ShouldUseSwapFileForDexopt()) &#123;</span><br><span class="line">        <span class="comment">// Make sure there really is enough space.</span></span><br><span class="line">        <span class="keyword">char</span> swap_file_name[PKG_PATH_MAX];</span><br><span class="line">        <span class="built_in">strcpy</span>(swap_file_name, out_path);</span><br><span class="line">        <span class="keyword">if</span> (add_extension_to_file_name(swap_file_name, <span class="string">".swap"</span>)) &#123;</span><br><span class="line">            swap_fd.reset(open_output_file(swap_file_name, <span class="comment">/*recreate*/</span><span class="literal">true</span>, <span class="comment">/*permissions*/</span><span class="number">0600</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (swap_fd.get() &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// Could not create swap file. Optimistically go on and hope that we can compile</span></span><br><span class="line">            <span class="comment">// without it.</span></span><br><span class="line">            ALOGE(<span class="string">"installd could not create '%s' for swap during dexopt\n"</span>, swap_file_name);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// Immediately unlink. We don't really want to hit flash.</span></span><br><span class="line">            <span class="keyword">if</span> (unlink(swap_file_name) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                PLOG(ERROR) &lt;&lt; <span class="string">"Couldn't unlink swap file "</span> &lt;&lt; swap_file_name;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Avoid generating an app image for extract only since it will not contain any classes.</span></span><br><span class="line">    Dex2oatFileWrapper&lt;<span class="built_in">std</span>::function&lt;<span class="keyword">void</span> ()&gt;&gt; image_fd;</span><br><span class="line">    <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> image_path = create_image_filename(out_path);</span><br><span class="line">    <span class="keyword">if</span> (!image_path.empty()) &#123;</span><br><span class="line">        <span class="keyword">char</span> app_image_format[kPropertyValueMax];</span><br><span class="line">        <span class="keyword">bool</span> have_app_image_format =</span><br><span class="line">                get_property(<span class="string">"dalvik.vm.appimageformat"</span>, app_image_format, <span class="literal">NULL</span>) &gt; <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// Use app images only if it is enabled (by a set image format) and we are compiling</span></span><br><span class="line">        <span class="comment">// profile-guided (so the app image doesn't conservatively contain all classes).</span></span><br><span class="line">        <span class="keyword">if</span> (profile_guided &amp;&amp; have_app_image_format) &#123;</span><br><span class="line">            <span class="comment">// Recreate is true since we do not want to modify a mapped image. If the app is</span></span><br><span class="line">            <span class="comment">// already running and we modify the image file, it can cause crashes (b/27493510).</span></span><br><span class="line">            image_fd.reset(open_output_file(image_path.c_str(),</span><br><span class="line">                                            <span class="literal">true</span> <span class="comment">/*recreate*/</span>,</span><br><span class="line">                                            <span class="number">0600</span> <span class="comment">/*permissions*/</span>),</span><br><span class="line">                           [image_path]() &#123; unlink(image_path.c_str()); &#125;</span><br><span class="line">                           );</span><br><span class="line">            <span class="keyword">if</span> (image_fd.get() &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// Could not create application image file. Go on since we can compile without</span></span><br><span class="line">                <span class="comment">// it.</span></span><br><span class="line">                LOG(ERROR) &lt;&lt; <span class="string">"installd could not create '"</span></span><br><span class="line">                        &lt;&lt; image_path</span><br><span class="line">                        &lt;&lt; <span class="string">"' for image file during dexopt"</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!set_permissions_and_ownership(image_fd.get(),</span><br><span class="line">                                                      is_public,</span><br><span class="line">                                                      uid,</span><br><span class="line">                                                      image_path.c_str())) &#123;</span><br><span class="line">                image_fd.reset(<span class="number">-1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// If we have a valid image file path but no image fd, explicitly erase the image file.</span></span><br><span class="line">        <span class="keyword">if</span> (image_fd.get() &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (unlink(image_path.c_str()) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (errno != ENOENT) &#123;</span><br><span class="line">                    PLOG(ERROR) &lt;&lt; <span class="string">"Couldn't unlink image file "</span> &lt;&lt; image_path;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ALOGV(<span class="string">"DexInv: --- BEGIN '%s' ---\n"</span>, input_file);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pid_t</span> pid = fork();</span><br><span class="line">    <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">/* child -- drop privileges before continuing */</span></span><br><span class="line">        drop_capabilities(uid);</span><br><span class="line"></span><br><span class="line">        SetDex2OatAndPatchOatScheduling(boot_complete);</span><br><span class="line">        <span class="keyword">if</span> (flock(out_fd.get(), LOCK_EX | LOCK_NB) != <span class="number">0</span>) &#123;</span><br><span class="line">            ALOGE(<span class="string">"flock(%s) failed: %s\n"</span>, out_path, strerror(errno));</span><br><span class="line">            _exit(<span class="number">67</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (dexopt_needed == DEXOPT_PATCHOAT_NEEDED</span><br><span class="line">            || dexopt_needed == DEXOPT_SELF_PATCHOAT_NEEDED) &#123;</span><br><span class="line">            run_patchoat(input_fd.get(),</span><br><span class="line">                         out_fd.get(),</span><br><span class="line">                         input_file,</span><br><span class="line">                         out_path,</span><br><span class="line">                         pkgname,</span><br><span class="line">                         instruction_set);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (dexopt_needed == DEXOPT_DEX2OAT_NEEDED) &#123;</span><br><span class="line">            <span class="comment">// Pass dex2oat the relative path to the input file.</span></span><br><span class="line">            <span class="keyword">const</span> <span class="keyword">char</span> *input_file_name = get_location_from_path(input_file);</span><br><span class="line">            run_dex2oat(input_fd.get(),</span><br><span class="line">                        out_fd.get(),</span><br><span class="line">                        image_fd.get(),</span><br><span class="line">                        input_file_name,</span><br><span class="line">                        out_path,</span><br><span class="line">                        swap_fd.get(),</span><br><span class="line">                        instruction_set,</span><br><span class="line">                        compiler_filter,</span><br><span class="line">                        vm_safe_mode,</span><br><span class="line">                        debuggable,</span><br><span class="line">                        boot_complete,</span><br><span class="line">                        reference_profile_fd.get(),</span><br><span class="line">                        shared_libraries);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ALOGE(<span class="string">"Invalid dexopt needed: %d\n"</span>, dexopt_needed);</span><br><span class="line">            _exit(<span class="number">73</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        _exit(<span class="number">68</span>);   <span class="comment">/* only get here on exec failure */</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">int</span> res = wait_child(pid);</span><br><span class="line">        <span class="keyword">if</span> (res == <span class="number">0</span>) &#123;</span><br><span class="line">            ALOGV(<span class="string">"DexInv: --- END '%s' (success) ---\n"</span>, input_file);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ALOGE(<span class="string">"DexInv: --- END '%s' --- status=0x%04x, process failed\n"</span>, input_file, res);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">utimbuf</span> <span class="title">ut</span>;</span></span><br><span class="line">    ut.actime = input_stat.st_atime;</span><br><span class="line">    ut.modtime = input_stat.st_mtime;</span><br><span class="line">    utime(out_path, &amp;ut);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We've been successful, don't delete output.</span></span><br><span class="line">    out_fd.SetCleanup(<span class="literal">false</span>);</span><br><span class="line">    image_fd.SetCleanup(<span class="literal">false</span>);</span><br><span class="line">    reference_profile_fd.SetCleanup(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><p>dexopt步骤具体实现这里不做分析，我也不太懂，超出了本文的分析范围。接下来继续上一步的installNewPackageLIF方法安装新的apk包：<br><figure class="highlight java"><figcaption><span>PackageManagerService.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Install a non-existing package.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installNewPackageLIF</span><span class="params">(PackageParser.Package pkg, <span class="keyword">final</span> <span class="keyword">int</span> policyFlags,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> scanFlags, UserHandle user, String installerPackageName, String volumeUuid,</span></span></span><br><span class="line"><span class="function"><span class="params">        PackageInstalledInfo res)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         <span class="comment">// 这步主要是创建新app的一些系统设置信息，</span></span><br><span class="line">        PackageParser.Package newPackage = scanPackageTracedLI(pkg, policyFlags, scanFlags,</span><br><span class="line">                System.currentTimeMillis(), user);</span><br><span class="line">        <span class="comment">// update settings and permissions</span></span><br><span class="line">        updateSettingsLI(newPackage, installerPackageName, <span class="keyword">null</span>, res, user);</span><br><span class="line">        <span class="keyword">if</span> (res.returnCode == PackageManager.INSTALL_SUCCEEDED) &#123;</span><br><span class="line">            prepareAppDataAfterInstallLIF(newPackage); <span class="comment">// 安装成功准备数据</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 安装失败会删除package</span></span><br><span class="line">            deletePackageLIF(pkgName, UserHandle.ALL, <span class="keyword">false</span>, <span class="keyword">null</span>,</span><br><span class="line">                    PackageManager.DELETE_KEEP_DATA, res.removedInfo, <span class="keyword">true</span>, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (PackageManagerException e) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>该方法完成权限、设置、数据等步骤之后，安装的步骤完成，会继续执行上面提到的备份步骤，备份完成之后，发送Intent.ACTION_PACKAGE_ADDED广播，完成安装。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>跟踪完了这么多的源码，可能脑子已经糊涂了，我们再理一下整个过程的大体步骤：</p>
+<ol>
+<li>点击apk文件弹出安装，即PackageInstaller.app应用中的处理</li>
+<li>进入PackageInstaller、PackageInstallerSession等类的处理</li>
+<li>进入PKMS.installStage方法</li>
+<li>PKMS.handleStartCopy()拷贝apk文件到/data/app目录下</li>
+<li>开始解析安装包，PackageParse类的流转</li>
+<li>dexopt</li>
+<li>dexopt完成就是数据、权限、设置等信息的完善</li>
+<li>备份</li>
+<li>安装完成</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果对你有用，可以请我吃桶泡面~</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/imgs/wxpay.jpg" alt="Jack Huang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/imgs/alipay.jpg" alt="Jack Huang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag"># android</a>
+          
+            <a href="/tags/source-analysis/" rel="tag"># source analysis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/08/Binder-AIDL入门/" rel="next" title="Binder&AIDL入门">
+                <i class="fa fa-chevron-left"></i> Binder&AIDL入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/25/OkHttp源码分析/" rel="prev" title="OkHttp源码分析">
+                OkHttp源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zOTY3My8xNjIwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/imgs/avatar.jpg" alt="Jack Huang">
+            
+              <p class="site-author-name" itemprop="name">Jack Huang</p>
+              <p class="site-description motion-element" itemprop="description">一生放荡不羁爱自由</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/huangzhengneng" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#click-install"><span class="nav-number">2.</span> <span class="nav-text">click install</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageInstallerActivity"><span class="nav-number">2.1.</span> <span class="nav-text">PackageInstallerActivity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InstallAppProgress"><span class="nav-number">2.2.</span> <span class="nav-text">InstallAppProgress</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageInstaller"><span class="nav-number">2.3.</span> <span class="nav-text">PackageInstaller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageInstallerSession"><span class="nav-number">2.4.</span> <span class="nav-text">PackageInstallerSession</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#install"><span class="nav-number">3.</span> <span class="nav-text">install</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageManagerService"><span class="nav-number">3.1.</span> <span class="nav-text">PackageManagerService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageManagerService-InstallParams"><span class="nav-number">3.2.</span> <span class="nav-text">PackageManagerService.InstallParams</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageManagerService-1"><span class="nav-number">3.3.</span> <span class="nav-text">PackageManagerService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageParser"><span class="nav-number">3.4.</span> <span class="nav-text">PackageParser</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dexopt"><span class="nav-number">4.</span> <span class="nav-text">dexopt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PackageDexOptimizer"><span class="nav-number">4.1.</span> <span class="nav-text">PackageDexOptimizer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Installer"><span class="nav-number">4.2.</span> <span class="nav-text">Installer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InstallerConnection"><span class="nav-number">4.3.</span> <span class="nav-text">InstallerConnection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#native-commands-cpp"><span class="nav-number">4.4.</span> <span class="nav-text">native commands.cpp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#权限"><span class="nav-number">5.</span> <span class="nav-text">权限</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jack Huang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
